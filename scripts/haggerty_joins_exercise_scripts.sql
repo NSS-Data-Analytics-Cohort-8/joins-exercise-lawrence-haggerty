@@ -118,8 +118,29 @@ WHERE headquarters NOT LIKE ('%CA%')
 GROUP BY company_name, film_title, imdb_rating
 ORDER BY imdb_rating DESC;
 
---ANSWER: 2 Movies are Distributed by a Non-CA Company. Of the 2 Movies, Dirty Dancing has the Highest IMDB Rating (7.0). Adding film title and imdb rating negates the count for film_title. I observed this as I built out the query....
+--ANSWER: 2 Movies are Distributed by a Non-CA Company. Of the 2 Movies, Dirty Dancing has the Highest IMDB Rating (7.0). Adding film title and imdb rating negates the count for film_title. I observed this as I built out the query....Will continue to troubleshoot and clean this up. 
 
+-- SECOND ATTEMPT 6. How many movies in the dataset are distributed by a company which is not headquartered in California? Which of these movies has the highest imdb rating?
+
+SELECT company_name, 
+	COUNT (film_title) AS film_title_count,
+	(SELECT movie_title,imdb_rating
+	FROM specs
+	USING movie_id)
+FROM distributors
+INNER JOIN specs
+ON distributors.distributor_id=specs.domestic_distributor_id
+INNER JOIN rating
+USING (movie_id)
+WHERE headquarters NOT LIKE ('%CA%')
+GROUP BY company_name;
+
+SELECT movie_title, imdb_rating
+FROM distributor
+INNER JOIN spec
+ON distributors.distributor_id=specs.domestic_distributor_id
+INNER JOIN rating
+USING (movie_id)
 
 -- 7. Which have a higher average rating, movies which are over two hours long or movies which are under two hours?
 
@@ -137,5 +158,16 @@ USING (movie_id)
 WHERE length_in_min<120;
 --Return 6.92
 
---ANSWER: Movies Over 2 Hours Have a Higher IMDB Average (7.26 vs 6.92)
+--Combine Using Subquery in SELECT Clause
+SELECT ROUND(AVG(imdb_rating), 2) AS avg_imdb_ovr2hr,
+	(SELECT ROUND(AVG(imdb_rating), 2) 
+	FROM specs
+	LEFT JOIN rating
+	USING (movie_id)
+	WHERE length_in_min<120) AS avg_imdb_undr2hr
+FROM specs
+LEFT JOIN rating
+USING (movie_id)
+WHERE length_in_min>120;
 
+--ANSWER: Movies Over 2 Hours Have a Higher IMDB Average (7.26 vs 6.92)
