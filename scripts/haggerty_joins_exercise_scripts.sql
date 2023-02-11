@@ -1,3 +1,5 @@
+--Reviewing the Tables
+
 SELECT *
 FROM distributors;
 
@@ -18,7 +20,8 @@ FROM specs
 LEFT JOIN revenue
 USING (movie_id)
 GROUP BY (film_title, release_year)
-ORDER BY ww_gross;
+ORDER BY ww_gross
+LIMIT 1;
 
 --Answer: Semi-Tough, 1977, $37,187,139
 
@@ -29,7 +32,8 @@ FROM specs
 LEFT JOIN rating
 USING (movie_id)
 GROUP BY release_year
-ORDER BY avg_imdb_rtng DESC;
+ORDER BY avg_imdb_rtng DESC
+LIMIT 1;
 
 --Answer: 1991 has the highest average IMDB rating. 1991 IMDB Average Rating = 7.45
 
@@ -79,15 +83,7 @@ ON distributors.distributor_id=specs.domestic_distributor_id
 GROUP BY company_name
 ORDER BY film_count DESC;
 
-SELECT company_name, COUNT(film_title) AS film_title
-FROM distributors
-FULL JOIN specs
-ON distributors.distributor_id = specs.domestic_distributor_id 
-GROUP BY company_name
-ORDER BY film_title DESC;
-
-
---Tried this problem 2 ways FULL and Left Join. FULL JOIN returns 24 Lines w/ 1 NULL for Company Name. Left Join Returns 23 Lines w/no NULL for Company.
+--Tried this problem 2 ways FULL and Left Join. FULL JOIN returns 24 Lines w/ 1 NULL for Company Name. (FULL JOIN combines both LEFT & RIGHT JOINS) Left Join Returns 23 Lines w/no NULL for Company. (LEFT JOIN Returns Everything from Left Table and Records from Right Table that Match on the Joining Field Created in ON Statement.)
 
 -- 5. Write a query that returns the five distributors with the highest average movie budget.
 
@@ -118,29 +114,23 @@ WHERE headquarters NOT LIKE ('%CA%')
 GROUP BY company_name, film_title, imdb_rating
 ORDER BY imdb_rating DESC;
 
---ANSWER: 2 Movies are Distributed by a Non-CA Company. Of the 2 Movies, Dirty Dancing has the Highest IMDB Rating (7.0). Adding film title and imdb rating negates the count for film_title. I observed this as I built out the query....Will continue to troubleshoot and clean this up. 
+--ANSWER: 2 Movies are Distributed by a Non-CA Company. Of the 2 Movies, Dirty Dancing has the Highest IMDB Rating (7.0). 
+--Based on Review of the Tables, this is a Correct Answer, But, Adding film title and imdb rating negates the count for film_title....This would lead to an incorrect answer in a slightly different situation.....Will continue to troubleshoot and clean this up. 
 
 -- SECOND ATTEMPT 6. How many movies in the dataset are distributed by a company which is not headquartered in California? Which of these movies has the highest imdb rating?
 
-SELECT company_name, 
-	COUNT (film_title) AS film_title_count,
-	(SELECT movie_title,imdb_rating
-	FROM specs
-	USING movie_id)
+SELECT film_title, imdb_rating 
 FROM distributors
 INNER JOIN specs
 ON distributors.distributor_id=specs.domestic_distributor_id
 INNER JOIN rating
 USING (movie_id)
 WHERE headquarters NOT LIKE ('%CA%')
-GROUP BY company_name;
+GROUP BY film_title, imdb_rating
+ORDER BY imdb_rating DESC;
 
-SELECT movie_title, imdb_rating
-FROM distributor
-INNER JOIN spec
-ON distributors.distributor_id=specs.domestic_distributor_id
-INNER JOIN rating
-USING (movie_id)
+--ANSWER SECOND ATTEMPT 6: --ANSWER: 2 Movies are Distributed by a Non-CA Company. Of the 2 Movies, Dirty Dancing has the Highest IMDB Rating (7.0).
+--Based on the Limited Dataset and Returns for Movies Distributed by a Non-CA Company, Executing a Count was not required. Removing the Count Produced a Cleaner Query for the Question. 
 
 -- 7. Which have a higher average rating, movies which are over two hours long or movies which are under two hours?
 
