@@ -63,7 +63,45 @@ LIMIT 1;
 -- 4. Write a query that returns, for each distributor in the distributors table, the distributor name and the number of movies associated with that distributor in the movies 
 -- table. Your result set should include all of the distributors, whether or not they have any movies in the movies table.
 
+SELECT company_name,
+	COUNT(film_title) AS film_count
+FROM distributors
+FULL JOIN specs
+ON distributors.distributor_id=specs.domestic_distributor_id
+GROUP BY company_name
+ORDER BY film_count DESC;
+
+SELECT company_name,
+	COUNT(film_title) AS film_count
+FROM distributors
+LEFT JOIN specs
+ON distributors.distributor_id=specs.domestic_distributor_id
+GROUP BY company_name
+ORDER BY film_count DESC;
+
+SELECT company_name, COUNT(film_title) AS film_title
+FROM distributors
+FULL JOIN specs
+ON distributors.distributor_id = specs.domestic_distributor_id 
+GROUP BY company_name
+ORDER BY film_title DESC;
+
+
+--Tried this problem 2 ways FULL and Left Join. FULL JOIN returns 24 Lines w/ 1 NULL for Company Name. Left Join Returns 23 Lines w/no NULL for Company.
+
 -- 5. Write a query that returns the five distributors with the highest average movie budget.
+
+SELECT company_name,
+	ROUND(AVG(film_budget)) AS avg_film_budget
+FROM distributors
+LEFT JOIN specs
+ON distributors.distributor_id=specs.domestic_distributor_id
+LEFT JOIN revenue
+USING (movie_id)
+WHERE film_budget IS NOT NULL
+GROUP BY company_name
+ORDER BY avg_film_budget DESC
+LIMIT 5;
 
 -- 6. How many movies in the dataset are distributed by a company which is not headquartered in California? Which of these movies has the highest imdb rating?
 
