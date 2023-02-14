@@ -161,3 +161,20 @@ USING (movie_id)
 WHERE length_in_min>120;
 
 --ANSWER: Movies Over 2 Hours Have a Higher IMDB Average (7.26 vs 6.92)
+
+
+-- PURE GOOGLE BONUS - These should be things you've never seen before.
+
+-- 1.	Find the total worldwide gross and average imdb rating by decade. Then alter your query so it returns JUST the second highest average imdb rating and its decade. This should result in a table with just one row.
+
+SELECT SUM(worldwide_gross) AS sum_ww_gross, 
+	ROUND(AVG(imdb_rating), 2) AS avg_imdb_rtng,
+	release_year
+FROM specs
+LEFT JOIN revenue
+USING (movie_id)
+LEFT JOIN rating
+USING (movie_id)
+GROUP BY release_year
+ORDER BY release_year;
+
